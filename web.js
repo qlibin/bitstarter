@@ -4,7 +4,7 @@ var fs = require('fs');
 var app = express.createServer(express.logger());
 
 app.get('/', function(request, response) {
-  var bufIndex = "sdfsd";//fs.readFileSync("index.html")
+  var bufIndex = fs.readFileSync("index.html");
   response.send(bufIndex.toString());
 });
 
