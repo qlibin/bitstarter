@@ -28,7 +28,6 @@ var cheerio = require('cheerio');
 var rest = require('restler');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
-var URL_DEFAULT = "http://murmuring-peak-9571.herokuapp.com";
 
 var isUrl = function (htmlfile) {
     return htmlfile && htmlfile.match(/^https?\:\/\//);
@@ -45,7 +44,7 @@ var assertWebFile = function (infile) {
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
-    if(!fs.existsSync(instr) && !isUrl(instr)) {
+    if(!fs.existsSync(instr)) {
         console.log("%s does not exist. Exiting.", instr);
         process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
     }
@@ -55,7 +54,6 @@ var assertFileExists = function(infile) {
 
 var cheerioHtmlFile = function(htmlfile, onTextReady) {
     if (isUrl(htmlfile)) {
-	console.log(htmlfile);
 	rest.get(htmlfile).on('complete', function(result, response) {
             if (result instanceof Error) {
 		console.error('Error: ' + util.format(result.message));
@@ -95,11 +93,9 @@ if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .option('-u, --url <url>', 'url', clone(assertWebFile), URL_DEFAULT)
+        .option('-u, --url <url>', 'url', clone(assertWebFile))
         .parse(process.argv);
-    //console.log("program.url="+program.url);
-    //console.log("program.url.toString()="+program.url.toString());
-    var filename = program.url.toString() != URL_DEFAULT ? program.url.toString() : program.file;
+    var filename = program.url ? program.url.toString() : program.file;
     checkHtmlFile(filename, program.checks, function (checkJson) {
         var outJson = JSON.stringify(checkJson, null, 4);
         console.log(outJson);
